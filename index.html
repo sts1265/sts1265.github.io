@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMA Explorer Prototype</title>
+  <style>
+    :root {
+      --primary: #0f2a44;
+      --accent: #1f6feb;
+      --bg-light: #f7f9fc;
+      --border: #d6e0ef;
+    }
+
+    /* Side-by-Side Desktop Layout */
+    body { 
+      margin: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: grid; 
+      grid-template-columns: 280px 1fr 300px; 
+      height: 100vh; 
+      background: var(--bg-light); 
+      overflow: hidden;
+    }
+
+    .left-panel { background: var(--primary); color: white; padding: 20px; overflow-y: auto; border-right: 1px solid #081a2b; }
+    .left-panel h3 { margin-top: 0; color: #9ec3ff; font-size: 1.1rem; text-transform: uppercase; border-bottom: 1px solid #1f4c7a; padding-bottom: 10px; }
+    
+    .obligation-link { 
+      display: block; 
+      padding: 12px 15px; 
+      margin-bottom: 10px; 
+      background: #173a5e; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-size: 0.85rem;
+      border-left: 4px solid transparent;
+      transition: background 0.2s;
+    }
+    .obligation-link:hover { background: #1f4c7a; }
+    .obligation-link.active { background: var(--accent); border-left-color: white; }
+
+    .center-panel { padding: 40px; overflow-y: auto; background: white; line-height: 1.6; color: #333; }
+    .title { font-size: 24px; font-weight: 800; margin-bottom: 15px; color: var(--primary); }
+    .provision-text { font-size: 1.05rem; white-space: pre-wrap; margin-top: 20px; }
+    
+    .link-section { margin: 20px 0; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
+    .ref-link { 
+      display: inline-block;
+      margin-right: 10px; 
+      padding: 4px 12px;
+      background: white;
+      text-decoration: none; 
+      color: var(--accent); 
+      font-weight: 600; 
+      cursor: pointer; 
+      border-radius: 20px;
+      font-size: 0.85rem;
+      border: 1px solid var(--accent);
+    }
+    .ref-link:hover { background: var(--accent); color: white; }
+
+    .right-panel { background: #eef3f9; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+    .resource-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .resource-card a { display: inline-block; color: white; background: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 5px; font-size: 0.8rem; margin-top: 10px; }
+    
+    .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 50px; }
+  </style>
+</head>
+<body>
+
+<div class="left-panel">
+  <h3>DMA Explorer</h3>
+  <div id="nav"></div>
+</div>
+
+<div class="center-panel">
+  <div id="content">
+    <div class="empty-state">
+      <h2>Select an item</h2>
+      <p>Use the left menu to browse Articles and Recitals.</p>
+    </div>
+  </div>
+</div>
+
+<div class="right-panel">
+  <h3>Further resources</h3>
+  <div id="resources">
+    <div class="empty-state">No item selected.</div>
+  </div>
+</div>
+
+<script>
+const rows = [
+  {
+    provision: "Recital 46",
+    title: "Recital 46",
+    text: "In certain circumstances, a gatekeeper has a dual role as an undertaking providing core platform services...",
+    links: ["Art. 6(2)"],
+    info: null
+  },
+  {
+    provision: "Recital 51",
+    title: "Recital 51",
+    text: "Gatekeepers are often vertically integrated and offer certain products or services...",
+    links: ["Art. 6(5)"],
+    info: null
+  },
+  {
+    provision: "Recital 52",
+    title: "Recital 52",
+    text: "In such situations, the gatekeeper should not engage in any form of differentiated treatment...",
+    links: ["Art. 6(5)"],
+    info: null
+  },
+  {
+    provision: "Art. 6(2)",
+    title: "[Restriction on using competitor data]",
+    text: "The gatekeeper shall not use, in competition with business users, any data that is not publicly available...",
+    links: ["Recital 46"],
+    info: {
+      label: "Podszun, DMA Commentary, Art. 6(2)",
+      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex2%2Ehtm"
+    }
+  },
+  {
+    provision: "Art. 6(5)",
+    title: "[Prohibition of self-preferencing]",
+    text: "The gatekeeper shall not treat more favourably, in ranking and related indexing and crawling...",
+    links: ["Recital 51", "Recital 52"],
+    info: {
+      label: "Podszun, DMA Commentary, Art. 6(5)",
+      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex5%2Ehtm"
+    }
+  }
+];
+
+function renderNav() {
+  const nav = document.getElementById("nav");
+  nav.innerHTML = rows.map(r => `
+    <div class="obligation-link" id="nav-${r.provision.replace(/[.()\s]/g, '-')}" onclick="loadItem('${r.provision}')">
+      <strong>${r.provision}</strong>
+    </div>
+  `).join('');
+}
+
+function loadItem(prov) {
+  const item = rows.find(r => r.provision === prov);
+  if (!item) return;
+
+  document.querySelectorAll('.obligation-link').forEach(el => el.classList.remove('active'));
+  document.getElementById(`nav-${prov.replace(/[.()\s]/g, '-')}`).classList.add('active');
+
+  const linksHtml = item.links.map(l => `<a class="ref-link" onclick="loadItem('${l.trim()}')">${l.trim()}</a>`).join('');
+  
+  document.getElementById('content').innerHTML = `
+    <div class="title">${item.provision}: ${item.title}</div>
+    <div class="link-section"><strong>Linked Reference(s):</strong> ${linksHtml}</div>
+    <div class="provision-text">${item.text}</div>
+  `;
+
+  const resDiv = document.getElementById('resources');
+  if (item.info) {
+    resDiv.innerHTML = `
+      <div class="resource-card">
+        <strong>Official Commentary</strong>
+        <p>${item.info.label}</p>
+        <a href="${item.info.url}" target="_blank">View on Beck-Online ↗</a>
+      </div>
+    `;
+  } else {
+    resDiv.innerHTML = `<div class="empty-state">No specific commentary linked.</div>`;
+  }
+}
+
+renderNav();
+</script>
+</body>
+</html>
