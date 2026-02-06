@@ -1,4 +1,4 @@
-# DMA Explorer Prototype
+#DMA Explorer Prototype
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,11 +10,36 @@
       --accent: #1f6feb;
       --bg-light: #f7f9fc;
       --border: #d6e0ef;
+      --text-main: #2c3e50;
     }
-    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: grid; grid-template-columns: 320px 1fr 320px; background: var(--bg-light); }
-    
-    .left-panel { background: var(--primary); color: white; padding: 20px; overflow-y: auto; border-right: 1px solid #081a2b; }
-    .left-panel h3 { margin-top: 0; color: #9ec3ff; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1f4c7a; padding-bottom: 10px; }
+
+    /* BASE LAYOUT (Mobile first - Stacked) */
+    body { 
+      margin: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      background: var(--bg-light); 
+      min-height: 100vh;
+      color: var(--text-main);
+    }
+
+    /* LEFT PANEL: Navigation */
+    .left-panel { 
+      background: var(--primary); 
+      color: white; 
+      padding: 20px; 
+      overflow-y: auto; 
+    }
+    .left-panel h3 { 
+      margin-top: 0; 
+      color: #9ec3ff; 
+      font-size: 1.1rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      border-bottom: 1px solid #1f4c7a; 
+      padding-bottom: 10px; 
+    }
     
     .obligation-link { 
       display: block; 
@@ -31,14 +56,20 @@
     .obligation-link.active { background: var(--accent); border-left-color: white; }
     .obligation-link small { display: block; margin-top: 4px; opacity: 0.8; font-weight: normal; }
 
-    .center-panel { padding: 40px; overflow-y: auto; background: white; line-height: 1.6; color: #333; }
+    /* CENTER PANEL: Main Content */
+    .center-panel { 
+      padding: 30px; 
+      background: white; 
+      line-height: 1.6; 
+      flex: 1;
+    }
     .title { font-size: 24px; font-weight: 800; margin-bottom: 15px; color: var(--primary); }
     .provision-id { color: var(--accent); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 5px; }
-    .provision-text { font-size: 1.05rem; white-space: pre-wrap; margin-top: 20px; color: #2c3e50; }
+    .provision-text { font-size: 1.05rem; white-space: pre-wrap; margin-top: 20px; }
     
+    /* Internal Links within content */
     .link-section { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
     .link-section span { font-weight: bold; margin-right: 10px; color: #555; }
-    
     .ref-link { 
       display: inline-block;
       margin: 4px 8px 4px 0; 
@@ -55,7 +86,12 @@
     }
     .ref-link:hover { background: var(--accent); color: white; }
 
-    .right-panel { background: #eef3f9; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+    /* RIGHT PANEL: Resources */
+    .right-panel { 
+      background: #eef3f9; 
+      border-top: 1px solid var(--border); 
+      padding: 20px; 
+    }
     .right-panel h3 { margin-top: 0; color: var(--primary); font-size: 1.1rem; }
     
     .resource-card { 
@@ -77,11 +113,21 @@
       padding: 8px 12px;
       border-radius: 5px;
       font-size: 0.8rem;
-      transition: opacity 0.2s;
     }
-    .resource-card a:hover { opacity: 0.8; }
-    
-    .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 50px; }
+
+    .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 40px; }
+
+    /* DESKTOP LAYOUT (Three columns) */
+    @media (min-width: 1024px) {
+      body { 
+        display: grid; 
+        grid-template-columns: 320px 1fr 320px; 
+        height: 100vh; 
+        overflow: hidden; 
+      }
+      .left-panel, .center-panel, .right-panel { height: 100vh; overflow-y: auto; }
+      .right-panel { border-top: none; border-left: 1px solid var(--border); }
+    }
   </style>
 </head>
 <body>
@@ -94,8 +140,8 @@
 <div class="center-panel">
   <div id="content">
     <div class="empty-state">
-      <h2>DMA Explorer Prototype</h2>
-      <p>Please select an Article or Recital to view the full legal text and related resources.</p>
+      <h2>DMA Explorer</h2>
+      <p>Select an Article or Recital from the left to view the legal text and commentary.</p>
     </div>
   </div>
 </div>
@@ -114,30 +160,21 @@ const rows = [
     title: "Recital 46",
     text: "In certain circumstances, a gatekeeper has a dual role as an undertaking providing core platform services, whereby it provides a core platform service, and possibly other services provided together with, or in support of, that core platform service to its business users, while also competing or intending to compete with those same business users in the provision of the same or similar services or products to the same end users. In those circumstances, a gatekeeper can take advantage of its dual role to use data, generated or provided by its business users in the context of activities by those business users when using the core platform services or the services provided together with, or in support of, those core platform services, for the purpose of its own services or products. The data of the business user can also include any data generated by or provided during the activities of its end users.\n\nThis can be the case, for instance, where a gatekeeper provides an online marketplace or a software application store to business users, and at the same time provides services as an undertaking providing online retail services or software applications.\n\nTo prevent gatekeepers from unfairly benefitting from their dual role, it is necessary to ensure that they do not use any aggregated or non-aggregated data, which could include anonymised and personal data that is not publicly available to provide similar services to those of their business users.\n\nThat obligation should apply to the gatekeeper as a whole, including but not limited to its business unit that competes with the business users of a core platform service.",
     links: ["Art. 6(2)"],
-    info: {
-      label: "Podszun, DMA Article-by-article Commentary, Art. 6(2)",
-      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex2%2Ehtm"
-    }
+    info: null
   },
   {
     provision: "Recital 51",
     title: "Recital 51",
     text: "Gatekeepers are often vertically integrated and offer certain products or services to end users through their own core platform services, or through a business user over which they exercise control which frequently leads to conflicts of interest.\n\nThis can include the situation whereby a gatekeeper provides its own online intermediation services through an online search engine. When offering those products or services on the core platform service, gatekeepers can reserve a better position, in terms of ranking, and related indexing and crawling, for their own offering than that of the products or services of third parties also operating on that core platform service.\n\nThis can occur for instance with products or services, including other core platform services, which are ranked in the results communicated by online search engines, or which are partly or entirely embedded in online search engines results, groups of results specialised in a certain topic, displayed along with the results of an online search engine, which are considered or used by certain end users as a service distinct or additional to the online search engine.\n\nOther instances are those of software applications which are distributed through software application stores, or videos distributed through a video-sharing platform, or products or services that are given prominence and display in the newsfeed of an online social networking service, or products or services ranked in search results or displayed on an online marketplace, or products or services offered through a virtual assistant.\n\nSuch reserving of a better position of gatekeeper’s own offering can take place even before ranking following a query, such as during crawling and indexing.\n\nFor example, already during crawling, as a discovery process by which new and updated content is being found, as well as indexing, which entails storing and organising of the content found during the crawling process, the gatekeeper can favour its own content over that of third parties. In those circumstances, the gatekeeper is in a dual-role position as intermediary for third-party undertakings and as undertaking directly providing products or services. Consequently, such gatekeepers have the ability to undermine directly the contestability for those products or services on those core platform services, to the detriment of business users which are not controlled by the gatekeeper.",
     links: ["Art. 6(5)"],
-    info: {
-      label: "Podszun, DMA Article-by-article Commentary, Art. 6(5)",
-      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex5%2Ehtm"
-    }
+    info: null
   },
   {
     provision: "Recital 52",
     title: "Recital 52",
     text: "In such situations, the gatekeeper should not engage in any form of differentiated or preferential treatment in ranking on the core platform service, and related indexing and crawling, whether through legal, commercial or technical means, in favour of products or services it offers itself or through a business user which it controls.\n\nTo ensure that this obligation is effective, the conditions that apply to such ranking should also be generally fair and transparent. Ranking should in this context cover all forms of relative prominence, including display, rating, linking or voice results and should also include instances where a core platform service presents or communicates only one result to the end user.\n\nTo ensure that this obligation is effective and cannot be circumvented, it should also apply to any measure that has an equivalent effect to the differentiated or preferential treatment in ranking. The guidelines adopted pursuant to Article 5 of Regulation (EU) 2019/1150 should also facilitate the implementation and enforcement of this obligation.",
     links: ["Art. 6(5)"],
-    info: {
-      label: "Podszun, DMA Article-by-article Commentary, Art. 6(5)",
-      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex5%2Ehtm"
-    }
+    info: null
   },
   {
     provision: "Art. 6(2)",
@@ -175,9 +212,12 @@ function loadItem(prov) {
   const item = rows.find(r => r.provision === prov);
   if (!item) return;
 
+  // Set active class in nav
   document.querySelectorAll('.obligation-link').forEach(el => el.classList.remove('active'));
-  document.getElementById(`nav-${prov.replace(/[.()\s]/g, '-')}`).classList.add('active');
+  const navEl = document.getElementById(`nav-${prov.replace(/[.()\s]/g, '-')}`);
+  if(navEl) navEl.classList.add('active');
 
+  // Load Main Content
   const linksHtml = item.links.map(l => `<a class="ref-link" onclick="loadItem('${l.trim()}')">${l.trim()}</a>`).join('');
   
   document.getElementById('content').innerHTML = `
@@ -189,6 +229,7 @@ function loadItem(prov) {
     <div class='provision-text'>${item.text}</div>
   `;
 
+  // Load Resource Panel
   const resDiv = document.getElementById('resources');
   if (item.info) {
     resDiv.innerHTML = `
@@ -201,9 +242,15 @@ function loadItem(prov) {
   } else {
     resDiv.innerHTML = `<div class="empty-state">No specific commentary linked for this section.</div>`;
   }
+
+  // Scroll to top of content on mobile
+  if (window.innerWidth < 1024) {
+    document.querySelector('.center-panel').scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 renderNav();
 </script>
+
 </body>
 </html>
