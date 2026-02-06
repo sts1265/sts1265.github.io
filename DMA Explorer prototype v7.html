@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMA Explorer Prototype</title>
+  <style>
+    :root {
+      --primary: #0f2a44;
+      --accent: #1f6feb;
+      --bg-light: #f7f9fc;
+      --border: #d6e0ef;
+    }
+    body { 
+      margin: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: grid; 
+      grid-template-columns: 280px 1fr 300px; 
+      height: 100vh; 
+      background: var(--bg-light); 
+      overflow: hidden;
+    }
+    .left-panel { background: var(--primary); color: white; padding: 20px; overflow-y: auto; border-right: 1px solid #081a2b; }
+    .left-panel h3 { margin-top: 0; color: #9ec3ff; font-size: 1.1rem; text-transform: uppercase; border-bottom: 1px solid #1f4c7a; padding-bottom: 10px; }
+    .obligation-link { 
+      display: block; 
+      padding: 12px 15px; 
+      margin-bottom: 10px; 
+      background: #173a5e; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-size: 0.85rem;
+      border-left: 4px solid transparent;
+    }
+    .obligation-link:hover { background: #1f4c7a; }
+    .obligation-link.active { background: var(--accent); border-left-color: white; }
+    .obligation-link small { display: block; margin-top: 4px; opacity: 0.7; }
+    .center-panel { padding: 40px; overflow-y: auto; background: white; line-height: 1.6; color: #333; }
+    .title { font-size: 22px; font-weight: 800; margin-bottom: 15px; color: var(--primary); }
+    .provision-id { color: var(--accent); font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+    .provision-text { font-size: 1rem; white-space: pre-wrap; margin-top: 20px; }
+    .link-section { margin: 20px 0; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
+    .ref-link { 
+      display: inline-block;
+      margin-right: 10px; 
+      padding: 4px 10px;
+      background: white;
+      text-decoration: none; 
+      color: var(--accent); 
+      font-weight: 600; 
+      cursor: pointer; 
+      border-radius: 15px;
+      font-size: 0.8rem;
+      border: 1px solid var(--accent);
+    }
+    .ref-link:hover { background: var(--accent); color: white; }
+    .right-panel { background: #eef3f9; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+    .resource-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; }
+    .resource-card a { display: inline-block; color: white; background: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 5px; font-size: 0.8rem; margin-top: 10px; }
+    .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 50px; }
+  </style>
+</head>
+<body>
+<div class="left-panel"><h3>DMA Explorer</h3><div id="nav"></div></div>
+<div class="center-panel"><div id="content"><div class="empty-state"><h2>Select an item</h2><p>Use the left menu to browse Articles and Recitals.</p></div></div></div>
+<div class="right-panel"><h3>Further resources</h3><div id="resources"><div class="empty-state">No item selected.</div></div></div>
+<script>
+const rows = [
+  {
+    provision: "Recital 46",
+    title: "Dual Role and Data Use",
+    text: `In certain circumstances, a gatekeeper has a dual role as an undertaking providing core platform services, whereby it provides a core platform service, and possibly other services provided together with, or in support of, that core platform service to its business users, while also competing or intending to compete with those same business users in the provision of the same or similar services or products to the same end users. In those circumstances, a gatekeeper can take advantage of its dual role to use data, generated or provided by its business users in the context of activities by those business users when using the core platform services or the services provided together with, or in support of, those core platform services, for the purpose of its own services or products.`,
+    links: ["Art. 6(2)"],
+    info: null
+  },
+  {
+    provision: "Recital 51",
+    title: "Self-Preferencing Risks",
+    text: `Gatekeepers are often vertically integrated and offer certain products or services to end users through their own core platform services, or through a business user over which they exercise control which frequently leads to conflicts of interest.`,
+    links: ["Art. 6(5)"],
+    info: null
+  },
+  {
+    provision: "Recital 52",
+    title: "Fair Ranking Conditions",
+    text: `In such situations, the gatekeeper should not engage in any form of differentiated or preferential treatment in ranking on the core platform service, and related indexing and crawling, whether through legal, commercial or technical means, in favour of products or services it offers itself or through a business user which it controls.`,
+    links: ["Art. 6(5)"],
+    info: null
+  },
+  {
+    provision: "Art. 6(2)",
+    title: "[Restriction on using competitor data]",
+    text: `The gatekeeper shall not use, in competition with business users, any data that is not publicly available that is generated or provided by those business users in the context of their use of the relevant core platform services or of the services provided together with, or in support of, the relevant core platform services, including data generated or provided by the customers of those business users.`,
+    links: ["Recital 46"],
+    info: {
+      label: "Podszun, DMA Commentary, Art. 6(2)",
+      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex2%2Ehtm"
+    }
+  },
+  {
+    provision: "Art. 6(5)",
+    title: "[Prohibition of self-preferencing]",
+    text: `The gatekeeper shall not treat more favourably, in ranking and related indexing and crawling, services and products offered by the gatekeeper itself than similar services or products of a third party. The gatekeeper shall apply transparent, fair and non-discriminatory conditions to such ranking.`,
+    links: ["Recital 51", "Recital 52"],
+    info: {
+      label: "Podszun, DMA Commentary, Art. 6(5)",
+      url: "https://beck-online.beck.de/?vpath=bibdata%2Fkomm%2FPodKoDMA_1%2FEU_VO_2022_1925%2Fcont%2FPodKoDMA%2EEU_VO_2022_1925%2Ea6%2Ex5%2Ehtm"
+    }
+  }
+];
+
+function renderNav() {
+  const nav = document.getElementById("nav");
+  nav.innerHTML = rows.map(r => `
+    <div class="obligation-link" id="nav-${r.provision.replace(/[.()\s]/g, '-')}" onclick="loadItem('${r.provision}')">
+      <strong>\${r.provision}</strong>
+      <small>\${r.title}</small>
+    </div>
+  `).join('');
+}
+
+function loadItem(prov) {
+  const item = rows.find(r => r.provision === prov);
+  if (!item) return;
+  document.querySelectorAll('.obligation-link').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById(\`nav-\${item.provision.replace(/[.()\\s]/g, '-')}\`);
+  if(navEl) navEl.classList.add('active');
+  const linksHtml = item.links.map(l => \`<a class="ref-link" onclick="loadItem('\${l}')">\${l}</a>\`).join('');
+  document.getElementById('content').innerHTML = \`
+    <div class="provision-id">\${item.provision.includes('Art') ? 'Obligation' : 'Recital'}</div>
+    <div class="title">\${item.provision}: \${item.title}</div>
+    <div class="link-section"><strong>Linked References:</strong> \${linksHtml}</div>
+    <div class="provision-text">\${item.text}</div>
+  \`;
+  const resDiv = document.getElementById('resources');
+  if (item.info) {
+    resDiv.innerHTML = \`
+      <div class="resource-card">
+        <strong>Official Commentary</strong>
+        <p>\${item.info.label}</p>
+        <a href="\${item.info.url}" target="_blank">View on Beck-Online ↗</a>
+      </div>
+    \`;
+  } else {
+    resDiv.innerHTML = \`<div class="empty-state">No specific commentary linked.</div>\`;
+  }
+}
+renderNav();
+</script>
+</body>
+</html>
