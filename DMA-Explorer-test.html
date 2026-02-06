@@ -56,6 +56,55 @@
     .resource-link-btn:hover { background: #1559be; }
 
     .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 100px; padding: 20px; }
+    /* --- NEW TOUCH TARGET RULES ADDED HERE --- */
+    .obligation-link, .resource-link-btn {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    /* Mobile Responsive Adjustments */
+@media (max-width: 900px) {
+  body {
+    display: block; /* Remove the 3-column grid */
+    overflow-y: auto; /* Allow the whole page to scroll */
+    height: auto;
+  }
+
+  .panel {
+    height: auto; /* Let panels grow with their content */
+    overflow-y: visible; 
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .left-panel {
+    padding: 15px;
+  }
+
+  /* Make the navigation links appear as a scrollable row or a list */
+  #nav {
+    display: flex;
+    overflow-x: auto; /* Allows horizontal swiping of the menu */
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+
+  .obligation-link {
+    flex: 0 0 auto; /* Prevent links from shrinking */
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .center-panel {
+    padding: 20px 15px;
+  }
+
+  .right-panel {
+    background: var(--bg-light);
+  }
+}
   </style>
 </head>
 <body>
@@ -198,6 +247,8 @@ function loadPage(provName) {
     // Falls back to empty state if no resources are found
     resDisplay.innerHTML = `<div class="empty-state">No dedicated links for ${item.provision}.</div>`;
   }
+if (window.innerWidth < 900) {
+    document.getElementById('main-display').scrollIntoView({ behavior: 'smooth' });
 }
 
 renderNav();
