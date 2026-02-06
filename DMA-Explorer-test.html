@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DMA Explorer - Integrated View</title>
+  <title>DMA Explorer - Dedicated Resources</title>
   <style>
     :root {
       --primary: #0f2a44;
       --accent: #1f6feb;
       --bg-light: #f7f9fc;
       --border: #d6e0ef;
-      --recital-bg: #ffffff;
     }
 
     body { 
@@ -25,14 +24,12 @@
 
     /* Panels */
     .panel { overflow-y: auto; padding: 30px; height: 100vh; box-sizing: border-box; }
-    
     .left-panel { background: var(--primary); color: white; padding: 20px; border-right: 1px solid #081a2b; }
     .center-panel { background: #f0f4f8; border-right: 1px solid var(--border); }
     .right-panel { background: white; }
 
     /* Left Nav */
     h3 { margin-top: 0; color: #9ec3ff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1f4c7a; padding-bottom: 10px; }
-    
     .obligation-link { 
       padding: 12px; margin-bottom: 8px; background: #173a5e; border-radius: 6px; 
       cursor: pointer; font-size: 0.85rem; transition: 0.2s; border-left: 4px solid transparent;
@@ -40,19 +37,23 @@
     .obligation-link:hover { background: #1f4c7a; }
     .obligation-link.active { background: var(--accent); border-left-color: white; font-weight: bold; }
 
-    /* Content Styling */
+    /* Content Cards */
     .main-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid var(--border); }
-    .reference-card { background: var(--recital-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent); margin-bottom: 20px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .reference-card { background: #ffffff; padding: 20px; border-radius: 8px; border-left: 4px solid #cbd5e0; margin-bottom: 20px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     
-    .label { font-size: 0.75rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
-    .title { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+    .label { font-size: 0.7rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .title { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
     .text-body { font-size: 1rem; line-height: 1.6; color: #333; white-space: pre-wrap; }
     
     /* Right Panel Resources */
-    .resource-box { padding: 15px; border-radius: 8px; background: #f8f9fa; border: 1px solid var(--border); margin-bottom: 15px; }
-    .resource-box strong { display: block; margin-bottom: 5px; color: var(--primary); }
-    .resource-box a { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-    .resource-box a:hover { text-decoration: underline; }
+    .resource-box { padding: 20px; border-radius: 8px; background: #f8f9fa; border: 1px solid var(--border); margin-bottom: 15px; }
+    .resource-box strong { display: block; margin-bottom: 10px; color: var(--primary); font-size: 1rem; }
+    .resource-link-btn { 
+        display: inline-block; padding: 10px 15px; background: var(--accent); 
+        color: white !important; text-decoration: none; border-radius: 6px; 
+        font-size: 0.85rem; font-weight: bold; width: 100%; text-align: center; box-sizing: border-box;
+    }
+    .resource-link-btn:hover { background: #1559be; }
 
     .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 100px; padding: 20px; }
   </style>
@@ -66,81 +67,92 @@
 
 <div class="panel center-panel">
   <div id="main-display">
-    <div class="empty-state">Select an Article or Recital to view the full regulatory context.</div>
+    <div class="empty-state">Select a provision to view content and references.</div>
   </div>
 </div>
 
 <div class="panel right-panel">
   <h3>Further Resources</h3>
   <div id="resources-display">
-    <div class="empty-state">Select a provision to see external links and commentaries.</div>
+    <div class="empty-state">Links for the selected page will appear here.</div>
   </div>
 </div>
 
 <script>
+/**
+ * DATA STRUCTURE
+ * Add your provisions here. 
+ * 'resourceLink' is the dedicated link for the RIGHT column.
+ * 'links' determines what appears automatically BELOW the content in the center.
+ */
 const rows = [
   {
     provision: "Recital 46",
     title: "Dual Role and Data Use",
     text: `In certain circumstances, a gatekeeper has a dual role as an undertaking providing core platform services...`,
     links: ["Art. 6(2)"],
-    info: { label: "Podszun Commentary: Art. 6(2)", url: "https://beck-online.beck.de" }
+    resourceLabel: "Podszun Commentary: Recital 46",
+    resourceLink: "https://beck-online.beck.de" 
   },
   {
     provision: "Recital 51",
     title: "Self-preferencing Scenarios",
     text: `Gatekeepers are often vertically integrated and offer certain products or services...`,
     links: ["Art. 6(5)"],
-    info: { label: "Podszun Commentary: Art. 6(5)", url: "https://beck-online.beck.de" }
+    resourceLabel: "Podszun Commentary: Recital 51",
+    resourceLink: "https://beck-online.beck.de"
   },
   {
     provision: "Recital 52",
     title: "Non-discrimination in Ranking",
     text: `In such situations, the gatekeeper should not engage in any form of differentiated or preferential treatment...`,
     links: ["Art. 6(5)"],
-    info: { label: "Podszun Commentary: Art. 6(5)", url: "https://beck-online.beck.de" }
+    resourceLabel: "Podszun Commentary: Recital 52",
+    resourceLink: "https://beck-online.beck.de"
   },
   {
     provision: "Art. 6(2)",
     title: "Restriction on Using Business User Data",
     text: `The gatekeeper shall not use, in competition with business users, any data that is not publicly available...`,
     links: ["Recital 46"],
-    info: { label: "Official Commentary: Art. 6(2)", url: "https://beck-online.beck.de" }
+    resourceLabel: "Official Commentary: Art. 6(2)",
+    resourceLink: "https://beck-online.beck.de"
   },
   {
     provision: "Art. 6(5)",
     title: "Prohibition of Self-preferencing",
     text: `The gatekeeper shall not treat more favourably, in ranking and related indexing and crawling, services and products offered by the gatekeeper itself than similar services or products of a third party.`,
     links: ["Recital 51", "Recital 52"],
-    info: { label: "Official Commentary: Art. 6(5)", url: "https://beck-online.beck.de" }
+    resourceLabel: "Official Commentary: Art. 6(5)",
+    resourceLink: "https://beck-online.beck.de"
   }
 ];
 
 function renderNav() {
   const nav = document.getElementById("nav");
   nav.innerHTML = rows.map(r => `
-    <div class="obligation-link" id="nav-${r.provision.replace(/[.()\s]/g, '-')}" onclick="loadDashboard('${r.provision}')">
+    <div class="obligation-link" id="nav-${r.provision.replace(/[.()\s]/g, '-')}" onclick="loadPage('${r.provision}')">
       <strong>${r.provision}</strong>
     </div>
   `).join('');
 }
 
-function loadDashboard(provName) {
-  const mainItem = rows.find(r => r.provision === provName);
-  if (!mainItem) return;
+function loadPage(provName) {
+  const item = rows.find(r => r.provision === provName);
+  if (!item) return;
 
-  // 1. Update Navigation UI
+  // 1. Highlight Nav
   document.querySelectorAll('.obligation-link').forEach(el => el.classList.remove('active'));
   document.getElementById(`nav-${provName.replace(/[.()\s]/g, '-')}`).classList.add('active');
 
-  // 2. Build Reference Content (the linked pages)
-  const referencesHtml = mainItem.links.map(linkName => {
+  // 2. Build References for Center Column (below content)
+  const referencesHtml = item.links.map(linkName => {
     const ref = rows.find(r => r.provision === linkName.trim());
     if (!ref) return '';
     return `
       <div class="reference-card">
-        <span class="label">Referenced Provision</span>
-        <div class="title" style="font-size: 1.1rem;">${ref.provision}: ${ref.title}</div>
+        <span class="label">Context: ${ref.provision}</span>
+        <div class="title" style="font-size: 1.1rem;">${ref.title}</div>
         <div class="text-body" style="font-size: 0.9rem;">${ref.text}</div>
       </div>
     `;
@@ -149,37 +161,26 @@ function loadDashboard(provName) {
   // 3. Render Center Column
   document.getElementById('main-display').innerHTML = `
     <div class="main-card">
-      <span class="label">Main Provision</span>
-      <div class="title">${mainItem.provision}</div>
-      <div class="text-body" style="font-weight: 600; margin-bottom: 15px;">${mainItem.title}</div>
-      <div class="text-body">${mainItem.text}</div>
+      <span class="label">Main Text</span>
+      <div class="title">${item.provision}</div>
+      <div class="text-body" style="font-weight: 600; margin-bottom: 15px;">${item.title}</div>
+      <div class="text-body">${item.text}</div>
     </div>
     ${referencesHtml}
   `;
 
-  // 4. Render Right Column (Resources)
-  // We show resources for the main item AND its references
-  let resourceHtml = '';
-  if (mainItem.info) {
-    resourceHtml += `
+  // 4. Render Right Column (DEDICATED link for THIS page only)
+  if (item.resourceLink) {
+    document.getElementById('resources-display').innerHTML = `
       <div class="resource-box">
-        <strong>${mainItem.provision}</strong>
-        <a href="${mainItem.info.url}" target="_blank">${mainItem.info.label} ↗</a>
-      </div>`;
+        <strong>Resources for ${item.provision}</strong>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">${item.resourceLabel}</p>
+        <a href="${item.resourceLink}" target="_blank" class="resource-link-btn">Open Resource ↗</a>
+      </div>
+    `;
+  } else {
+    document.getElementById('resources-display').innerHTML = `<div class="empty-state">No dedicated links for ${item.provision}.</div>`;
   }
-  
-  mainItem.links.forEach(linkName => {
-    const ref = rows.find(r => r.provision === linkName.trim());
-    if (ref && ref.info) {
-      resourceHtml += `
-        <div class="resource-box">
-          <strong>${ref.provision}</strong>
-          <a href="${ref.info.url}" target="_blank">${ref.info.label} ↗</a>
-        </div>`;
-    }
-  });
-
-  document.getElementById('resources-display').innerHTML = resourceHtml || '<div class="empty-state">No resources linked for these provisions.</div>';
 }
 
 renderNav();
