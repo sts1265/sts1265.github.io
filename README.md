@@ -1,5 +1,4 @@
-# sts1265.github.io
-<!DOCTYPE html>
+# DMA Explorer Prototype
 <html lang="en">
 <head>
   <meta charset="UTF-8">
