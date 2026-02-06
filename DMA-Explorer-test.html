@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DMA Explorer Prototype - Side-by-Side</title>
+  <title>DMA Explorer - Integrated View</title>
   <style>
     :root {
       --primary: #0f2a44;
       --accent: #1f6feb;
       --bg-light: #f7f9fc;
       --border: #d6e0ef;
+      --recital-bg: #ffffff;
     }
 
     body { 
       margin: 0; 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       display: grid; 
-      grid-template-columns: 260px 1fr 1fr; /* Equal width for center and right panels */
+      grid-template-columns: 280px 1fr 320px; 
       height: 100vh; 
       background: var(--bg-light); 
       overflow: hidden;
@@ -25,36 +26,35 @@
     /* Panels */
     .panel { overflow-y: auto; padding: 30px; height: 100vh; box-sizing: border-box; }
     
-    .left-panel { background: var(--primary); color: white; padding: 20px; border-right: 1px solid #081a2b; grid-column: 1; }
-    .center-panel { background: white; border-right: 1px solid var(--border); grid-column: 2; }
-    .right-panel { background: #f0f4f8; grid-column: 3; position: relative; }
+    .left-panel { background: var(--primary); color: white; padding: 20px; border-right: 1px solid #081a2b; }
+    .center-panel { background: #f0f4f8; border-right: 1px solid var(--border); }
+    .right-panel { background: white; }
 
-    /* Typography */
-    h3 { margin-top: 0; color: #9ec3ff; font-size: 1rem; text-transform: uppercase; border-bottom: 1px solid #1f4c7a; padding-bottom: 10px; }
-    .title { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
-    .provision-text { font-size: 1rem; line-height: 1.6; white-space: pre-wrap; color: #333; }
+    /* Left Nav */
+    h3 { margin-top: 0; color: #9ec3ff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1f4c7a; padding-bottom: 10px; }
     
-    /* Navigation Links */
     .obligation-link { 
       padding: 12px; margin-bottom: 8px; background: #173a5e; border-radius: 6px; 
-      cursor: pointer; font-size: 0.85rem; transition: 0.2s;
+      cursor: pointer; font-size: 0.85rem; transition: 0.2s; border-left: 4px solid transparent;
     }
     .obligation-link:hover { background: #1f4c7a; }
-    .obligation-link.active { background: var(--accent); font-weight: bold; }
+    .obligation-link.active { background: var(--accent); border-left-color: white; font-weight: bold; }
 
-    /* Inline Links */
-    .link-section { margin: 15px 0; padding: 10px; background: #eef3f9; border-radius: 8px; font-size: 0.9rem; }
-    .ref-link { 
-      display: inline-block; margin: 4px; padding: 4px 12px; background: var(--accent); 
-      color: white; text-decoration: none; border-radius: 20px; cursor: pointer; font-weight: 600;
-    }
+    /* Content Styling */
+    .main-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid var(--border); }
+    .reference-card { background: var(--recital-bg); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent); margin-bottom: 20px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     
-    /* UI Components */
-    .close-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; background: #ccc; border: none; border-radius: 50%; width: 25px; height: 25px; font-weight: bold; }
-    .resource-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 20px; }
-    .resource-card a { color: var(--accent); font-weight: bold; text-decoration: none; }
-    .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 100px; }
-    .panel-label { font-size: 0.7rem; font-weight: bold; color: #aaa; text-transform: uppercase; margin-bottom: 20px; display: block;}
+    .label { font-size: 0.75rem; font-weight: bold; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .title { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+    .text-body { font-size: 1rem; line-height: 1.6; color: #333; white-space: pre-wrap; }
+    
+    /* Right Panel Resources */
+    .resource-box { padding: 15px; border-radius: 8px; background: #f8f9fa; border: 1px solid var(--border); margin-bottom: 15px; }
+    .resource-box strong { display: block; margin-bottom: 5px; color: var(--primary); }
+    .resource-box a { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .resource-box a:hover { text-decoration: underline; }
+
+    .empty-state { color: #888; font-style: italic; text-align: center; margin-top: 100px; padding: 20px; }
   </style>
 </head>
 <body>
@@ -64,18 +64,16 @@
   <div id="nav"></div>
 </div>
 
-<div class="panel center-panel" id="primary-view">
-  <span class="panel-label">Primary Selection</span>
-  <div id="primary-content">
-    <div class="empty-state">Select a provision from the left menu to begin.</div>
+<div class="panel center-panel">
+  <div id="main-display">
+    <div class="empty-state">Select an Article or Recital to view the full regulatory context.</div>
   </div>
 </div>
 
-<div class="panel right-panel" id="reference-view">
-  <button class="close-btn" onclick="clearRef()">×</button>
-  <span class="panel-label">Reference View</span>
-  <div id="reference-content">
-    <div class="empty-state">Click a link in the main text to compare related provisions here.</div>
+<div class="panel right-panel">
+  <h3>Further Resources</h3>
+  <div id="resources-display">
+    <div class="empty-state">Select a provision to see external links and commentaries.</div>
   </div>
 </div>
 
@@ -83,88 +81,105 @@
 const rows = [
   {
     provision: "Recital 46",
-    title: "[Explanations on Usage of Business User Data]",
-    text: `In certain circumstances, a gatekeeper has a dual role as an undertaking providing core platform services... To prevent gatekeepers from unfairly benefitting from their dual role, it is necessary to ensure that they do not use any aggregated or non-aggregated data...`,
+    title: "Dual Role and Data Use",
+    text: `In certain circumstances, a gatekeeper has a dual role as an undertaking providing core platform services...`,
     links: ["Art. 6(2)"],
-    info: { label: "Podszun, DMA Commentary, Art. 6(2)", url: "https://beck-online.beck.de/..." }
+    info: { label: "Podszun Commentary: Art. 6(2)", url: "https://beck-online.beck.de" }
   },
   {
     provision: "Recital 51",
-    title: "[Explanations on Self-preferencing]",
-    text: `Gatekeepers are often vertically integrated... When offering those products or services on the core platform service, gatekeepers can reserve a better position, in terms of ranking, and related indexing and crawling, for their own offering...`,
+    title: "Self-preferencing Scenarios",
+    text: `Gatekeepers are often vertically integrated and offer certain products or services...`,
     links: ["Art. 6(5)"],
-    info: { label: "Podszun, DMA Commentary, Art. 6(5)", url: "https://beck-online.beck.de/..." }
+    info: { label: "Podszun Commentary: Art. 6(5)", url: "https://beck-online.beck.de" }
   },
   {
     provision: "Recital 52",
-    title: "[Explanations on Fair Ranking Conditions]",
-    text: `In such situations, the gatekeeper should not engage in any form of differentiated or preferential treatment in ranking... Ranking should in this context cover all forms of relative prominence...`,
+    title: "Non-discrimination in Ranking",
+    text: `In such situations, the gatekeeper should not engage in any form of differentiated or preferential treatment...`,
     links: ["Art. 6(5)"],
-    info: { label: "Podszun, DMA Commentary, Art. 6(5)", url: "https://beck-online.beck.de/..." }
+    info: { label: "Podszun Commentary: Art. 6(5)", url: "https://beck-online.beck.de" }
   },
   {
     provision: "Art. 6(2)",
-    title: "[Restriction on Using Business User Data]",
-    text: `The gatekeeper shall not use, in competition with business users, any data that is not publicly available that is generated or provided by those business users...`,
+    title: "Restriction on Using Business User Data",
+    text: `The gatekeeper shall not use, in competition with business users, any data that is not publicly available...`,
     links: ["Recital 46"],
-    info: { label: "Podszun, DMA Commentary, Art. 6(2)", url: "https://beck-online.beck.de/..." }
+    info: { label: "Official Commentary: Art. 6(2)", url: "https://beck-online.beck.de" }
   },
   {
     provision: "Art. 6(5)",
-    title: "[Prohibition of Self-preferencing in Ranking]",
+    title: "Prohibition of Self-preferencing",
     text: `The gatekeeper shall not treat more favourably, in ranking and related indexing and crawling, services and products offered by the gatekeeper itself than similar services or products of a third party.`,
     links: ["Recital 51", "Recital 52"],
-    info: { label: "Podszun, DMA Commentary, Art. 6(5)", url: "https://beck-online.beck.de/..." }
+    info: { label: "Official Commentary: Art. 6(5)", url: "https://beck-online.beck.de" }
   }
 ];
 
 function renderNav() {
   const nav = document.getElementById("nav");
   nav.innerHTML = rows.map(r => `
-    <div class="obligation-link" id="nav-${r.provision.replace(/[.()\s]/g, '-')}" onclick="loadPrimaryItem('${r.provision}')">
+    <div class="obligation-link" id="nav-${r.provision.replace(/[.()\s]/g, '-')}" onclick="loadDashboard('${r.provision}')">
       <strong>${r.provision}</strong>
     </div>
   `).join('');
 }
 
-// Loads the main item into the Center Column
-function loadPrimaryItem(prov) {
-  const item = rows.find(r => r.provision === prov);
-  if (!item) return;
+function loadDashboard(provName) {
+  const mainItem = rows.find(r => r.provision === provName);
+  if (!mainItem) return;
 
+  // 1. Update Navigation UI
   document.querySelectorAll('.obligation-link').forEach(el => el.classList.remove('active'));
-  document.getElementById(`nav-${prov.replace(/[.()\s]/g, '-')}`).classList.add('active');
+  document.getElementById(`nav-${provName.replace(/[.()\s]/g, '-')}`).classList.add('active');
 
-  const linksHtml = item.links.map(l => `<a class="ref-link" onclick="loadReferenceItem('${l.trim()}')">${l.trim()}</a>`).join('');
+  // 2. Build Reference Content (the linked pages)
+  const referencesHtml = mainItem.links.map(linkName => {
+    const ref = rows.find(r => r.provision === linkName.trim());
+    if (!ref) return '';
+    return `
+      <div class="reference-card">
+        <span class="label">Referenced Provision</span>
+        <div class="title" style="font-size: 1.1rem;">${ref.provision}: ${ref.title}</div>
+        <div class="text-body" style="font-size: 0.9rem;">${ref.text}</div>
+      </div>
+    `;
+  }).join('');
+
+  // 3. Render Center Column
+  document.getElementById('main-display').innerHTML = `
+    <div class="main-card">
+      <span class="label">Main Provision</span>
+      <div class="title">${mainItem.provision}</div>
+      <div class="text-body" style="font-weight: 600; margin-bottom: 15px;">${mainItem.title}</div>
+      <div class="text-body">${mainItem.text}</div>
+    </div>
+    ${referencesHtml}
+  `;
+
+  // 4. Render Right Column (Resources)
+  // We show resources for the main item AND its references
+  let resourceHtml = '';
+  if (mainItem.info) {
+    resourceHtml += `
+      <div class="resource-box">
+        <strong>${mainItem.provision}</strong>
+        <a href="${mainItem.info.url}" target="_blank">${mainItem.info.label} ↗</a>
+      </div>`;
+  }
   
-  document.getElementById('primary-content').innerHTML = `
-    <div class="title">${item.provision}</div>
-    <div class="provision-text"><strong>${item.title}</strong></div>
-    <div class="link-section"><strong>Related references (click to open side-by-side):</strong><br>${linksHtml}</div>
-    <div class="provision-text">${item.text}</div>
-  `;
-}
+  mainItem.links.forEach(linkName => {
+    const ref = rows.find(r => r.provision === linkName.trim());
+    if (ref && ref.info) {
+      resourceHtml += `
+        <div class="resource-box">
+          <strong>${ref.provision}</strong>
+          <a href="${ref.info.url}" target="_blank">${ref.info.label} ↗</a>
+        </div>`;
+    }
+  });
 
-// Loads the linked item into the Right Column
-function loadReferenceItem(prov) {
-  const item = rows.find(r => r.provision === prov);
-  if (!item) return;
-
-  document.getElementById('reference-content').innerHTML = `
-    <div class="title" style="font-size: 1.1rem;">${item.provision}</div>
-    <div class="provision-text" style="font-size: 0.9rem;"><strong>${item.title}</strong></div>
-    <hr border="0" style="border-top:1px solid #ddd; margin:15px 0;">
-    <div class="provision-text" style="font-size: 0.9rem;">${item.text}</div>
-    ${item.info ? `
-      <div class="resource-card">
-        <strong>Commentary</strong><br>
-        <a href="${item.info.url}" target="_blank">View on Beck-Online ↗</a>
-      </div>` : ''}
-  `;
-}
-
-function clearRef() {
-  document.getElementById('reference-content').innerHTML = `<div class="empty-state">Click a link in the main text to compare related provisions here.</div>`;
+  document.getElementById('resources-display').innerHTML = resourceHtml || '<div class="empty-state">No resources linked for these provisions.</div>';
 }
 
 renderNav();
