@@ -240,7 +240,7 @@ function loadPage(provName) {
       <div class="resource-box">
         <strong>${item.provision} Resource</strong>
         <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">${res.Label}</p>
-        <a href="${res.Url}" target="_blank" class="resource-link-btn">Open Resource ↗</a>
+        <a href="${res.URL}" target="_blank" class="resource-link-btn">Open Resource ↗</a>
       </div>
     `).join('');
   } else {
@@ -249,6 +249,7 @@ function loadPage(provName) {
   }
 if (window.innerWidth < 900) {
     document.getElementById('main-display').scrollIntoView({ behavior: 'smooth' });
+}
 }
 
 renderNav();
